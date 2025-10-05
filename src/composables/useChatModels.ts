@@ -1,6 +1,5 @@
 import { ref, computed, onMounted, nextTick } from 'vue'
 import { marked } from 'marked'
-import Prism from 'prismjs'
 import {
   listChatArchives,
   addChatArchive,
@@ -10,13 +9,6 @@ import {
   type ChatArchive,
   type ArchivedResponse
 } from '../services/chatArchive'
-
-import 'prismjs/themes/prism.css'
-import 'prismjs/components/prism-javascript'
-import 'prismjs/components/prism-typescript'
-import 'prismjs/components/prism-python'
-import 'prismjs/components/prism-json'
-import 'prismjs/components/prism-bash'
 
 marked.setOptions({ breaks: true })
 
@@ -48,7 +40,7 @@ interface HistoryEntry {
 const generateChatId = () => `chat-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
 
 const OPENROUTER_ENDPOINT = 'https://openrouter.ai/api/v1/chat/completions'
-const OPENROUTER_KEY = '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'
+const OPENROUTER_KEY = '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'
 const HTTP_REFERER = 'http://localhost:5173'
 const SITE_TITLE = 'Konsensus Bot'
 
@@ -373,7 +365,7 @@ export function useChatModels() {
       } finally {
         responseItem.loading = false
         await nextTick()
-        Prism.highlightAll()
+        ;(window as any).hljs.highlightAll()
       }
     }
 

@@ -41,6 +41,14 @@ const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches 
 const storedTheme = localStorage.getItem(THEME_KEY)
 const isDark = ref(storedTheme ? storedTheme === 'dark' : prefersDark)
 
+const leftSidebarOpen = ref(true)
+const rightSidebarOpen = ref(true)
+
+const leftSidebarWidth = ref(320)
+const rightSidebarWidth = ref(320)
+const minWidth = 200
+const maxWidth = 600
+
 const applyTheme = (dark: boolean) => {
   document.documentElement.classList.toggle('dark', dark)
   document.documentElement.classList.toggle('light', !dark)
@@ -58,17 +66,70 @@ watch(isDark, (val) => {
 const toggleTheme = () => {
   isDark.value = !isDark.value
 }
-</script>
 
+const toggleLeftSidebar = () => {
+  leftSidebarOpen.value = !leftSidebarOpen.value
+}
+
+const toggleRightSidebar = () => {
+  rightSidebarOpen.value = !rightSidebarOpen.value
+}
+
+const increaseLeftWidth = () => {
+  if (leftSidebarWidth.value < maxWidth) leftSidebarWidth.value += 50
+}
+
+const decreaseLeftWidth = () => {
+  if (leftSidebarWidth.value > minWidth) leftSidebarWidth.value -= 50
+}
+
+const increaseRightWidth = () => {
+  if (rightSidebarWidth.value < maxWidth) rightSidebarWidth.value += 50
+}
+
+const decreaseRightWidth = () => {
+  if (rightSidebarWidth.value > minWidth) rightSidebarWidth.value -= 50
+}
+</script>
 <template>
   <div :class="['flex min-h-screen', isDark ? 'bg-slate-900 text-slate-100' : 'light bg-slate-50 text-slate-900']">
-    <aside class="hidden lg:flex w-80 xl:w-96 border-r border-slate-800 bg-slate-950/60 backdrop-blur flex-col">
+    <aside v-show="leftSidebarOpen" :style="{ width: leftSidebarWidth + 'px' }" class="border-r border-slate-800 bg-slate-950/60 backdrop-blur flex-col transition-all duration-300">
       <div class="px-6 py-5 border-b border-slate-800">
-        <div class="flex items-center gap-3">
-          <img src="/img/logo.png" alt="Konsensus Bot Logo" class="h-10 w-10 rounded-xl object-cover shadow-md shadow-primary/20" />
-          <div>
-            <h1 class="text-xl font-semibold tracking-tight">Konsensus Bot</h1>
-            <p class="text-sm text-slate-400 mt-1">Bandingkan jawaban dari berbagai model AI secara bersamaan.</p>
+        <div class="flex items-center justify-between">
+          <img src="/img/logo_white.png" alt="Konsensus Bot Logo" class="h-12" />
+          <div class="flex items-center gap-1">
+            <button
+              type="button"
+              @click="decreaseLeftWidth"
+              :disabled="leftSidebarWidth <= minWidth"
+              class="p-1 rounded text-slate-400 hover:text-slate-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              @click="increaseLeftWidth"
+              :disabled="leftSidebarWidth >= maxWidth"
+              class="p-1 rounded text-slate-400 hover:text-slate-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              @click="toggleLeftSidebar"
+              class="p-2 rounded-md text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition"
+            >
+              <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="3" y1="12" x2="21" y2="12" />
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <line x1="3" y1="18" x2="21" y2="18" />
+              </svg>
+            </button>
           </div>
         </div>
       </div>
@@ -279,7 +340,7 @@ const toggleTheme = () => {
               Mulailah dengan memilih model dan mengirim prompt.
             </div>
             <div v-else class="h-full">
-              <article class="max-w-4xl mx-auto rounded-3xl border border-slate-800 bg-slate-900/70 shadow-xl shadow-slate-900/40 p-6 flex flex-col min-h-[320px]">
+              <article class="max-w-none mx-auto rounded-3xl border border-slate-800 bg-slate-900/70 shadow-xl shadow-slate-900/40 p-6 flex flex-col min-h-[320px]">
                 <template v-if="activeResponse">
                   <div class="flex items-start justify-between gap-4 flex-wrap">
                     <div>
@@ -326,9 +387,45 @@ const toggleTheme = () => {
             </div>
           </section>
 
-          <aside class="w-full lg:w-80 xl:w-96 border-t lg:border-t-0 lg:border-l border-slate-800 bg-slate-950/60">
+          <aside v-show="rightSidebarOpen" :style="{ width: rightSidebarWidth + 'px' }" class="border-t lg:border-t-0 lg:border-l border-slate-800 bg-slate-950/60 transition-all duration-300">
             <div class="px-5 py-4 border-b border-slate-800">
-              <h2 class="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">Jawaban Model</h2>
+              <div class="flex items-center justify-between">
+                <h2 class="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">Jawaban Model</h2>
+                <div class="flex items-center gap-1">
+                  <button
+                    type="button"
+                    @click="decreaseRightWidth"
+                    :disabled="rightSidebarWidth <= minWidth"
+                    class="p-1 rounded text-slate-400 hover:text-slate-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="5" y1="12" x2="19" y2="12" />
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    @click="increaseRightWidth"
+                    :disabled="rightSidebarWidth >= maxWidth"
+                    class="p-1 rounded text-slate-400 hover:text-slate-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="12" y1="5" x2="12" y2="19" />
+                      <line x1="5" y1="12" x2="19" y2="12" />
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    @click="toggleRightSidebar"
+                    class="p-2 rounded-md text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition"
+                  >
+                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="3" y1="12" x2="21" y2="12" />
+                      <line x1="3" y1="6" x2="21" y2="6" />
+                      <line x1="3" y1="18" x2="21" y2="18" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
               <p class="text-xs text-slate-500 mt-1">Pilih model untuk melihat jawabannya.</p>
             </div>
             <div class="h-full max-h-[420px] lg:max-h-none overflow-y-auto px-5 py-4 space-y-3">
@@ -428,6 +525,7 @@ const toggleTheme = () => {
                 v-model="query"
                 rows="2"
                 placeholder="Ketik pesan Anda di sini..."
+                @keydown.enter="submitQuery"
                 class="w-full resize-none rounded-xl border border-transparent bg-transparent px-4 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:border-primary/40 focus:outline-none focus:ring-0"
               ></textarea>
               <div class="mt-2 flex items-center justify-between">
@@ -466,12 +564,37 @@ const toggleTheme = () => {
         </section>
       </main>
     </div>
+
+    <!-- Floating toggle buttons -->
+    <button
+      v-if="!leftSidebarOpen"
+      @click="toggleLeftSidebar"
+      class="fixed left-0 top-1/2 transform -translate-y-1/2 z-50 p-2 bg-slate-800 text-slate-400 hover:text-slate-200 rounded-r-md shadow-lg transition"
+    >
+      <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="3" y1="12" x2="21" y2="12" />
+        <line x1="3" y1="6" x2="21" y2="6" />
+        <line x1="3" y1="18" x2="21" y2="18" />
+      </svg>
+    </button>
+
+    <button
+      v-if="!rightSidebarOpen"
+      @click="toggleRightSidebar"
+      class="fixed right-0 top-1/2 transform -translate-y-1/2 z-50 p-2 bg-slate-800 text-slate-400 hover:text-slate-200 rounded-l-md shadow-lg transition"
+    >
+      <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="3" y1="12" x2="21" y2="12" />
+        <line x1="3" y1="6" x2="21" y2="6" />
+        <line x1="3" y1="18" x2="21" y2="18" />
+      </svg>
+    </button>
   </div>
 </template>
 
 <style scoped>
 :deep(pre) {
-  background-color: rgba(15, 23, 42, 0.75);
+  background-color: #282c34 !important;
   border: 1px solid rgba(71, 85, 105, 0.5);
   border-radius: 0.75rem;
   padding: 1rem;
